@@ -1,5 +1,6 @@
-import { View, Text, ScrollView, Button, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function ConfirmationStep() {
   const params = useLocalSearchParams();
@@ -9,7 +10,6 @@ export default function ConfirmationStep() {
 
   const handleSave = () => {
     // Здесь можно добавить сохранение в БД
-
     Alert.alert(
       'Успех',
       'Лекарство успешно добавлено!',
@@ -25,34 +25,224 @@ export default function ConfirmationStep() {
     );
   };
 
+  const renderInfoCard = (title, icon, children) => (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <Ionicons name={icon} size={24} color="#3B82F6" />
+        <Text style={styles.cardTitle}>{title}</Text>
+      </View>
+      <View style={styles.cardContent}>
+        {children}
+      </View>
+    </View>
+  );
 
   return (
-    <ScrollView style={{ padding: 20 }}>
-      <Text style={{ fontWeight: 'bold' }}>Подтверждение данных</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>Подтверждение</Text>
+      <Text style={styles.subtitle}>Проверьте введенную информацию</Text>
 
-      <Text>Название: {params.name}</Text>
-      <Text>Описание: {params.description}</Text>
-      <Text>Единицы: {params.unit}</Text>
-
-      <Text style={{ marginTop: 10, fontWeight: 'bold' }}>График:</Text>
-      {schedule.map((entry, index) => (
-        <Text key={index}>
-          Приём {index + 1}: {entry.time}, {entry.amount} {params.unit}
-        </Text>
+      {renderInfoCard('Основная информация', 'information-circle', (
+        <>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Название</Text>
+            <Text style={styles.infoValue}>{params.name}</Text>
+          </View>
+          {params.description && (
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Описание</Text>
+              <Text style={styles.infoValue}>{params.description}</Text>
+            </View>
+          )}
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Единицы измерения</Text>
+            <Text style={styles.infoValue}>{params.unit}</Text>
+          </View>
+        </>
       ))}
 
-      <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Напоминания:</Text>
-      <Text>
-        Напоминание: {params.enableReminder === 'true' ? 'Да' : 'Нет'}
-      </Text>
-      {params.enableReminder === 'true' && (
-        <>
-          <Text>Текущие запасы: {params.currentStock} {params.unit}</Text>
-          <Text>Напомнить при остатке: {params.remindThreshold} {params.unit}</Text>
-        </>
-      )}
+      {renderInfoCard('График приёма', 'calendar', (
+        <View style={styles.scheduleContainer}>
+          {schedule.map((entry, index) => (
+            <View key={index} style={styles.scheduleItem}>
+              <View style={styles.scheduleTime}>
+                <Ionicons name="time-outline" size={20} color="#6B7280" />
+                <Text style={styles.scheduleTimeText}>{entry.time}</Text>
+              </View>
+              <View style={styles.scheduleAmount}>
+                <Text style={styles.scheduleAmountText}>
+                  {entry.amount} {params.unit}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      ))}
 
-      <Button title="Сохранить" onPress={handleSave} />
+      {renderInfoCard('Напоминания', 'notifications', (
+        <>
+          <View style={styles.infoRow}>
+            <Text style={styles.infoLabel}>Статус</Text>
+            <View style={[
+              styles.statusBadge,
+              params.enableReminder === 'true' ? styles.statusEnabled : styles.statusDisabled
+            ]}>
+              <Text style={[
+                styles.statusText,
+                params.enableReminder === 'true' ? styles.statusTextEnabled : styles.statusTextDisabled
+              ]}>
+                {params.enableReminder === 'true' ? 'Включены' : 'Отключены'}
+              </Text>
+            </View>
+          </View>
+          
+          {params.enableReminder === 'true' && (
+            <>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Текущий запас</Text>
+                <Text style={styles.infoValue}>{params.currentStock} {params.unit}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>Порог уведомления</Text>
+                <Text style={styles.infoValue}>{params.remindThreshold} {params.unit}</Text>
+              </View>
+            </>
+          )}
+        </>
+      ))}
+
+      <TouchableOpacity 
+        style={styles.saveButton}
+        onPress={handleSave}
+      >
+        <Text style={styles.saveButtonText}>Сохранить</Text>
+        <Ionicons name="checkmark-circle" size={24} color="#fff" />
+      </TouchableOpacity>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#6B7280',
+    marginBottom: 24,
+  },
+  card: {
+    backgroundColor: '#F9FAFB',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginLeft: 8,
+  },
+  cardContent: {
+    gap: 12,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  infoLabel: {
+    fontSize: 14,
+    color: '#6B7280',
+    flex: 1,
+  },
+  infoValue: {
+    fontSize: 14,
+    color: '#1F2937',
+    fontWeight: '500',
+    flex: 2,
+    textAlign: 'right',
+  },
+  scheduleContainer: {
+    gap: 8,
+  },
+  scheduleItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 12,
+  },
+  scheduleTime: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  scheduleTimeText: {
+    fontSize: 16,
+    color: '#1F2937',
+    fontWeight: '500',
+  },
+  scheduleAmount: {
+    backgroundColor: '#EFF6FF',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  scheduleAmountText: {
+    fontSize: 14,
+    color: '#3B82F6',
+    fontWeight: '500',
+  },
+  statusBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 16,
+  },
+  statusEnabled: {
+    backgroundColor: '#DCFCE7',
+  },
+  statusDisabled: {
+    backgroundColor: '#FEE2E2',
+  },
+  statusText: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  statusTextEnabled: {
+    color: '#059669',
+  },
+  statusTextDisabled: {
+    color: '#DC2626',
+  },
+  saveButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3B82F6',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+    gap: 8,
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});
