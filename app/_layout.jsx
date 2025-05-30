@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import '../i18n';
 import { LocaleProvider } from '../contexts/LocaleContext';
 import { useLocale } from '../contexts/LocaleContext';
@@ -14,11 +15,53 @@ export default function Layout() {
           tabBarInactiveTintColor: '#64748B'
         }}>
         
-        <Tabs.Screen name="index" options={{ title: t.tabs.today }} />
-        <Tabs.Screen name="statistics" options={{ title: 'statistics' }} />
-        <Tabs.Screen name="sideeffects" options={{ title: 'sideeffects' }} />
-        <Tabs.Screen name="(aidkit)" options={{ title: 'aidkKit', headerShown: false }} />
-        <Tabs.Screen name="(profile)" options={{ title: 'profile', headerShown: false }} />
+        <Tabs.Screen 
+          name="index" 
+          options={{ 
+            title: t.tabs.today,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="calendar" size={size} color={color} />
+            )
+          }} 
+        />
+        <Tabs.Screen 
+          name="statistics" 
+          options={{ 
+            title: 'statistics',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="stats-chart" size={size} color={color} />
+            )
+          }} 
+        />
+        <Tabs.Screen 
+          name="sideeffects" 
+          options={{ 
+            title: 'sideeffects',
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="warning" size={size} color={color} />
+            )
+          }} 
+        />
+        <Tabs.Screen 
+          name="(aidkit)" 
+          options={{ 
+            title: 'aidkKit', 
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="medkit" size={size} color={color} />
+            )
+          }} 
+        />
+        <Tabs.Screen 
+          name="(profile)" 
+          options={{ 
+            title: 'profile', 
+            headerShown: false,
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="person" size={size} color={color} />
+            )
+          }} 
+        />
       </Tabs>
     </LocaleProvider>
   );
