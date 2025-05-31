@@ -15,7 +15,6 @@ const AidKit = () => {
 
   return (
     <View style={{ flex: 1, padding: 16 }}>
-      <Text>AidKit page</Text>
       <FlatList 
         data={medicines}
         renderItem={({ item }) => <MedicineCard medicine={item} />}
