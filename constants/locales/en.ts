@@ -41,7 +41,8 @@ export default {
     "about": "About us"
   },
   about: {
-    "text": "Мы команда medReminder, и наше приложение предоставляет пользователям удобный интерфейс для создания расписания приема лекарств, напоминаний о необходимости их приема, а также отслеживания побочных эффектов от лекарственных средств. Для связи с нами используйте почту medremind@gmail.com"
+    text: "We are the medReminder team, and our application provides users with a convenient interface for creating medication schedules, reminders about taking medications, and tracking side effects from medications.\n\nTo contact us, please use the email medremind@gmail.com",
+    version: "Version 1.0.0"
   }
 
 };
