@@ -63,7 +63,6 @@ export default Profile
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
     padding: 20,
   },
   userInfo: {
@@ -97,7 +96,8 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#000000',
+    opacity: 0.25,
     marginVertical: 20,
     width: '80%',
     alignSelf: 'center',

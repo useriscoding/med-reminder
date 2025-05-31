@@ -27,7 +27,7 @@ export default function Layout() {
         <Tabs.Screen 
           name="statistics" 
           options={{ 
-            title: 'statistics',
+            title: 'Stats',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="stats-chart" size={size} color={color} />
             )
@@ -36,7 +36,7 @@ export default function Layout() {
         <Tabs.Screen 
           name="sideeffects" 
           options={{ 
-            title: 'sideeffects',
+            title: 'Side Effects',
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="warning" size={size} color={color} />
             )
@@ -45,7 +45,7 @@ export default function Layout() {
         <Tabs.Screen 
           name="(aidkit)" 
           options={{ 
-            title: 'aidkKit', 
+            title: 'AidKit', 
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="medkit" size={size} color={color} />
@@ -55,7 +55,7 @@ export default function Layout() {
         <Tabs.Screen 
           name="(profile)" 
           options={{ 
-            title: 'profile', 
+            title: 'Profile', 
             headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Ionicons name="person" size={size} color={color} />
