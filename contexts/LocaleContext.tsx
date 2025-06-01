@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
-import en from '@constants/locales/en';
-import ru from '@constants/locales/ru';
+import en from '../constants/locales/en';
+import ru from '../constants/locales/ru';
 
 type Locale = 'en' | 'ru';
 type Translations = typeof en;
