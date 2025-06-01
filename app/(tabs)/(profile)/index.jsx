@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect } from 'react'
 import { Link } from 'expo-router'
-import { useLocale } from '../../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
 import { useNavigation } from 'expo-router';
 
 const Profile = () => {

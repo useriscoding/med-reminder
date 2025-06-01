@@ -2,8 +2,8 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import * as Localization from 'expo-localization';
 
-import en from './en.json';
-import ru from './ru.json';
+import en from '@i18n/en.json';
+import ru from '@i18n/ru.json';
 
 const locale = Localization?.locale || 'en';
 const lng = locale.startsWith('ru') ? 'ru' : 'en';

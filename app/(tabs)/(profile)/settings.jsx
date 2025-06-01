@@ -1,6 +1,6 @@
 import { StyleSheet, View, Text, TouchableOpacity, Modal } from 'react-native';
 import React, { useState } from 'react';
-import { useLocale } from '../../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
 
 const Settings = () => {
   const { t, locale, setLocale } = useLocale();

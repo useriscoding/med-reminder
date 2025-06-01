@@ -2,7 +2,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocale } from '../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
 import { useRouter } from 'expo-router';
 
 const MedicineCard = ({ medicine, onPress }) => {

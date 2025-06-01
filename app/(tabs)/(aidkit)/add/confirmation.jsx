@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useMedicines } from '../../../contexts/MedicinesContext';
+import { useMedicines } from '../../../../contexts/MedicinesContext';
 
 export default function ConfirmationStep() {
   const params = useLocalSearchParams();

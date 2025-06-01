@@ -1,4 +1,7 @@
 import { Stack, Tabs } from 'expo-router';
+import { LocaleProvider } from '@contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
+import { MedicinesProvider } from '@contexts/MedicinesContext';
 
 export default function Layout() {
 

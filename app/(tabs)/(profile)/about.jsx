@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
-import { useLocale } from '../../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
 
 const About = () => {
   const { t } = useLocale();

@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import React from 'react'
-import ReminderCard from '../components/ReminderCard';
+import ReminderCard from '@components/ReminderCard';
 import { useRouter } from 'expo-router';
-import { useMedicines } from '../contexts/MedicinesContext';
+import { useMedicines } from '@contexts/MedicinesContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const Home = () => {

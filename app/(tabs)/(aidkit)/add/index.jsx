@@ -2,7 +2,7 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet, ScrollView } from 
 import { useRouter } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocale } from '../../../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
 import { useNavigation } from 'expo-router';
 
 const commonMedicines = [

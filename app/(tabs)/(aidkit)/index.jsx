@@ -1,11 +1,11 @@
 import { StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useRouter, useNavigation } from 'expo-router';
-import { useMedicines } from '../../contexts/MedicinesContext';
-import MedicineCard from '../../components/MedicineCard';
-import MedicineModal from '../../components/MedicineModal';
+import { useMedicines } from '@contexts/MedicinesContext';
+import MedicineCard from '@components/MedicineCard';
+import MedicineModal from '@components/MedicineModal';
 import { Ionicons } from '@expo/vector-icons';
-import { useLocale } from '../../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
 
 const AidKit = () => {
   const router = useRouter();
