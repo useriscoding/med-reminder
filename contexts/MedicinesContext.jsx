@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 export const MedicinesContext = createContext();
 
@@ -13,6 +13,17 @@ export function useMedicines() {
 export function MedicinesProvider({ children }) {
   const [medicines, setMedicines] = useState([]);
   const [todayReminders, setTodayReminders] = useState([]);
+  // Храним информацию о том, для каких напоминаний уже был изменен остаток
+  const [stockChanges, setStockChanges] = useState(new Set());
+
+  // Функция для проверки, прошло ли время приема
+  const isTimePassedForReminder = (reminderTime) => {
+    const now = new Date();
+    const [hours, minutes] = reminderTime.split(':').map(Number);
+    const reminderDate = new Date(now);
+    reminderDate.setHours(hours, minutes, 0, 0);
+    return now > reminderDate;
+  };
 
   const addMedicine = (medicineData) => {
     const { 
@@ -56,7 +67,11 @@ export function MedicinesProvider({ children }) {
         const reminderTime = new Date(today);
         reminderTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-        const status = reminderTime > today ? 'upcoming' : 'missed';
+        // Определяем начальный статус
+        let status = 'upcoming';
+        if (isTimePassedForReminder(scheduleItem.time)) {
+          status = 'missed';
+        }
 
         reminders.push({
           id: `${medicine.id}-${scheduleItem.time}`,
@@ -78,7 +93,24 @@ export function MedicinesProvider({ children }) {
     setTodayReminders(reminders);
   };
 
-  const updateReminderStatus = (reminderId, newStatus) => {
+  const updateReminderStatus = (reminderId, newStatus, amount = 0, medicineId = null) => {
+    const reminder = todayReminders.find(r => r.id === reminderId);
+    if (!reminder) return;
+
+    // Проверяем, можно ли установить статус upcoming для прошедшего времени
+    if (newStatus === 'upcoming' && isTimePassedForReminder(reminder.time)) {
+      return;
+    }
+
+    // Если меняем на done и остаток еще не менялся для этого напоминания
+    if (newStatus === 'done' && !stockChanges.has(reminderId) && medicineId) {
+      const medicine = medicines.find(m => m.id === medicineId);
+      if (medicine) {
+        updateMedicineStock(medicineId, medicine.stock - amount);
+        setStockChanges(prev => new Set([...prev, reminderId]));
+      }
+    }
+
     setTodayReminders(prev =>
       prev.map(reminder =>
         reminder.id === reminderId
@@ -102,6 +134,64 @@ export function MedicinesProvider({ children }) {
     );
   };
 
+  const deleteMedicine = (medicineId) => {
+    // Удаляем лекарство из списка
+    setMedicines(prev => prev.filter(medicine => medicine.id !== medicineId));
+    
+    // Удаляем все напоминания для этого лекарства
+    setTodayReminders(prev => prev.filter(reminder => {
+      const [reminderMedicineId] = reminder.id.split('-');
+      return reminderMedicineId !== medicineId;
+    }));
+    
+    // Удаляем информацию об изменениях остатка для этого лекарства
+    setStockChanges(prev => {
+      const newChanges = new Set(prev);
+      for (const reminderId of newChanges) {
+        if (reminderId.startsWith(medicineId)) {
+          newChanges.delete(reminderId);
+        }
+      }
+      return newChanges;
+    });
+  };
+
+  // Ежедневное обновление в полночь
+  useEffect(() => {
+    const scheduleNextUpdate = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      
+      const timeUntilMidnight = tomorrow - now;
+      
+      return setTimeout(() => {
+        // Обновляем все напоминания на upcoming
+        setTodayReminders(prev =>
+          prev.map(reminder => ({
+            ...reminder,
+            status: 'upcoming'
+          }))
+        );
+        
+        // Очищаем информацию об изменениях остатка
+        setStockChanges(new Set());
+        
+        // Перезапускаем таймер
+        scheduleNextUpdate();
+      }, timeUntilMidnight);
+    };
+
+    const timerId = scheduleNextUpdate();
+    return () => clearTimeout(timerId);
+  }, []);
+
+  // Обновляем напоминания при изменении medicines
+  useEffect(() => {
+    updateTodayReminders(medicines);
+  }, [medicines]);
+
   return (
     <MedicinesContext.Provider
       value={{
@@ -110,6 +200,8 @@ export function MedicinesProvider({ children }) {
         addMedicine,
         updateReminderStatus,
         updateMedicineStock,
+        isTimePassedForReminder,
+        deleteMedicine,
       }}
     >
       {children}

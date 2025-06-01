@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native'
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Alert } from 'react-native'
 import React from 'react'
 import ReminderCard from '../components/ReminderCard';
 import { useRouter } from 'expo-router';
@@ -7,17 +7,57 @@ import { Ionicons } from '@expo/vector-icons';
 
 const Home = () => {
   const router = useRouter();
-  const { todayReminders, updateReminderStatus } = useMedicines();
+  const { 
+    todayReminders, 
+    updateReminderStatus, 
+    medicines, 
+    isTimePassedForReminder 
+  } = useMedicines();
 
   const toggleStatus = (id) => {
-    const currentReminder = todayReminders.find(r => r.id === id);
-    if (!currentReminder) return;
+    const reminder = todayReminders.find(r => r.id === id);
+    if (!reminder) return;
 
-    const newStatus = 
-      currentReminder.status === 'upcoming' ? 'done' :
-      currentReminder.status === 'done' ? 'missed' : 'upcoming';
+    const [medicineId] = reminder.id.split('-');
+    const medicine = medicines.find(m => m.id === medicineId);
+    
+    if (!medicine) return;
 
-    updateReminderStatus(id, newStatus);
+    // Получаем количество из дозы (например, из "2 таблетки" получаем 2)
+    const amount = parseInt(reminder.dose.split(' ')[0]);
+
+    // Определяем следующий статус в зависимости от текущего и времени
+    const timePassed = isTimePassedForReminder(reminder.time);
+    let newStatus;
+
+    if (reminder.status === 'done') {
+      newStatus = 'missed';
+    } else if (reminder.status === 'missed') {
+      if (medicine.stock < amount) {
+        Alert.alert(
+          'Недостаточно лекарства',
+          'В аптечке недостаточно единиц лекарства для приема. Пожалуйста, пополните запас.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      newStatus = 'done';
+    } else if (!timePassed) {
+      // Если время не прошло и статус upcoming, можем отметить как принятое
+      if (medicine.stock < amount) {
+        Alert.alert(
+          'Недостаточно лекарства',
+          'В аптечке недостаточно единиц лекарства для приема. Пожалуйста, пополните запас.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+      newStatus = 'done';
+    }
+
+    if (newStatus) {
+      updateReminderStatus(id, newStatus, amount, medicineId);
+    }
   };
 
   const renderEmptyList = () => (
