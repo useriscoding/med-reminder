@@ -45,8 +45,10 @@ export default function RegisterScreen() {
       }
       await AsyncStorage.setItem('token', authData.token);
       await AsyncStorage.setItem('ip', IP);
+      // Сохраняем только email пользователя
+      await AsyncStorage.setItem('userProfile', JSON.stringify({ email }));
       setLoading(false);
-      router.replace('/');
+      router.replace('/(tabs)/(profile)');
     } catch (e) {
       Alert.alert('Ошибка', 'Не удалось выполнить регистрацию');
       setLoading(false);

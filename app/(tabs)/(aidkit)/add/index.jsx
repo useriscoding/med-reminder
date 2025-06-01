@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocale } from '@contexts/LocaleContext';
 import { useNavigation } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const commonMedicines = [
   'Парацетамол',
@@ -31,8 +32,22 @@ export default function AddMedicineStep1() {
   const router = useRouter();
   const { t } = useLocale();
   const navigation = useNavigation();
+  const [profileFilled, setProfileFilled] = useState(true);
 
   useEffect(() => {
+    (async () => {
+      const profile = await AsyncStorage.getItem('userProfile');
+      if (profile) {
+        const data = JSON.parse(profile);
+        if (!data.age || !data.height || !data.weight) {
+          setProfileFilled(false);
+        } else {
+          setProfileFilled(true);
+        }
+      } else {
+        setProfileFilled(false);
+      }
+    })();
     navigation.setOptions({ title: t.tabs.addMedicine });
   }, [navigation, t]);
 
@@ -49,6 +64,10 @@ export default function AddMedicineStep1() {
   };
 
   const handleNext = () => {
+    if (!profileFilled) {
+      alert('Пожалуйста, заполните профиль перед добавлением лекарства.');
+      return;
+    }
     router.push({
       pathname: '/(aidkit)/add/schedule',
       params: { name, description, unit }
@@ -120,13 +139,18 @@ export default function AddMedicineStep1() {
         </View>
 
         <TouchableOpacity 
-          style={[styles.button, !name.trim() && styles.buttonDisabled]}
+          style={[styles.button, (!name.trim() || !profileFilled) && styles.buttonDisabled]}
           onPress={handleNext}
-          disabled={!name.trim()}
+          disabled={!name.trim() || !profileFilled}
         >
           <Text style={styles.buttonText}>Далее</Text>
           <Ionicons name="arrow-forward" size={24} color="#fff" />
         </TouchableOpacity>
+        {!profileFilled && (
+          <Text style={{ color: 'red', marginTop: 10, textAlign: 'center' }}>
+            Для добавления лекарства заполните профиль.
+          </Text>
+        )}
       </View>
     </ScrollView>
   );
