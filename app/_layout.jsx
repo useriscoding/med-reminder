@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import '../i18n';
 import { LocaleProvider } from '../contexts/LocaleContext';
 import { useLocale } from '../contexts/LocaleContext';
+import { MedicinesProvider } from '../contexts/MedicinesContext';
 
 export default function Layout() {
   const { t } = useLocale();
 
   return (
     <LocaleProvider>
+      <MedicinesProvider>
         <Tabs screenOptions={{
           tabBarActiveTintColor: '#3B82F6',
           tabBarInactiveTintColor: '#64748B'
@@ -63,6 +65,7 @@ export default function Layout() {
           }} 
         />
       </Tabs>
+      </MedicinesProvider>
     </LocaleProvider>
   );
 }

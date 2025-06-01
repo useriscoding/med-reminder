@@ -1,28 +1,26 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useMedicines } from '../../../contexts/MedicinesContext';
 
 export default function ConfirmationStep() {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const { addMedicine } = useMedicines();
 
   const schedule = params.schedule ? JSON.parse(params.schedule) : [];
 
   const handleSave = () => {
-    // Здесь можно добавить сохранение в БД
-    Alert.alert(
-      'Успех',
-      'Лекарство успешно добавлено!',
-      [
-        {
-          text: 'ОК',
-          onPress: () => {
-            router.replace('/(aidkit)'); 
-          }
-        }
-      ],
-      { cancelable: false }
-    );
+    addMedicine({
+      name: params.name,
+      description: params.description,
+      unit: params.unit,
+      schedule,
+      currentStock: params.currentStock,
+      remindThreshold: params.remindThreshold,
+    });
+    
+    router.replace('/(aidkit)');
   };
 
   const renderInfoCard = (title, icon, children) => (
@@ -151,10 +149,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   cardTitle: {
+    marginLeft: 8,
     fontSize: 18,
     fontWeight: '600',
     color: '#1F2937',
-    marginLeft: 8,
   },
   cardContent: {
     gap: 12,
@@ -163,19 +161,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
   },
   infoLabel: {
     fontSize: 14,
     color: '#6B7280',
-    flex: 1,
   },
   infoValue: {
     fontSize: 14,
-    color: '#1F2937',
     fontWeight: '500',
-    flex: 2,
-    textAlign: 'right',
+    color: '#1F2937',
   },
   scheduleContainer: {
     gap: 8,
@@ -185,8 +179,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#fff',
-    borderRadius: 8,
     padding: 12,
+    borderRadius: 8,
   },
   scheduleTime: {
     flexDirection: 'row',
@@ -194,9 +188,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   scheduleTimeText: {
-    fontSize: 16,
-    color: '#1F2937',
+    fontSize: 14,
     fontWeight: '500',
+    color: '#1F2937',
   },
   scheduleAmount: {
     backgroundColor: '#EFF6FF',
@@ -206,8 +200,8 @@ const styles = StyleSheet.create({
   },
   scheduleAmountText: {
     fontSize: 14,
-    color: '#3B82F6',
     fontWeight: '500',
+    color: '#3B82F6',
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -215,7 +209,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   statusEnabled: {
-    backgroundColor: '#DCFCE7',
+    backgroundColor: '#D1FAE5',
   },
   statusDisabled: {
     backgroundColor: '#FEE2E2',
@@ -237,7 +231,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#3B82F6',
     borderRadius: 12,
     padding: 16,
-    marginTop: 8,
+    marginTop: 24,
+    marginBottom: 32,
     gap: 8,
   },
   saveButtonText: {
