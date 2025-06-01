@@ -67,6 +67,8 @@ const Home = () => {
               dose={reminder.dose}
               time={reminder.time}
               status={reminder.status}
+              description={reminder.description}
+              instructions={reminder.instructions}
               onToggleStatus={(newStatus) => toggleStatus(reminder.id, newStatus)}
             />
           ))

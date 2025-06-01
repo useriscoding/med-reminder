@@ -1,11 +1,17 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'expo-router'
 import { useLocale } from '../../contexts/LocaleContext';
+import { useNavigation } from 'expo-router';
 
 const Profile = () => {
   const { t } = useLocale();
+  const navigation = useNavigation();
   
+  useEffect(() => {
+    navigation.setOptions({ title: t.tabs.profile });
+  }, [navigation, t]);
+
   // Данные пользователя (можно заменить на реальные данные из состояния)
   const user = {
     name: "Иван Иванов",

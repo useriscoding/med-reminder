@@ -84,6 +84,8 @@ export function MedicinesProvider({ children }) {
           dose: `${scheduleItem.amount} ${medicine.unit}`,
           time: scheduleItem.time,
           status,
+          description: medicine.description,
+          instructions: medicine.instructions,
         });
       });
     });

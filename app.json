@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "apptechka",
+    "name": "MedReminder",
     "slug": "apptechka",
     "scheme": "apptechka",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Logo.svg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {

@@ -2,7 +2,7 @@ import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
-const StatusChangeModal = ({ visible, onClose, onConfirm, currentStatus, medicineName }) => {
+const StatusChangeModal = ({ visible, onClose, onConfirm, currentStatus, medicineName, description, instructions, dose }) => {
   const getStatusText = (status) => {
     switch (status) {
       case 'done':
@@ -48,7 +48,19 @@ const StatusChangeModal = ({ visible, onClose, onConfirm, currentStatus, medicin
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.medicineName}>{medicineName}</Text>
+          {/* Информационный блок */}
+          <View style={styles.infoBlock}>
+            <Text style={styles.medicineName}>{medicineName}</Text>
+            {dose && (
+              <Text style={styles.dose}>{dose}</Text>
+            )}
+            {description && (
+              <Text style={styles.description}>{description}</Text>
+            )}
+            {instructions && (
+              <Text style={styles.instructions}>{instructions}</Text>
+            )}
+          </View>
           
           <View style={styles.statusButtons}>
             <TouchableOpacity
@@ -126,11 +138,41 @@ const styles = StyleSheet.create({
   closeButton: {
     padding: 4,
   },
-  medicineName: {
-    fontSize: 18,
-    fontWeight: '500',
-    color: '#374151',
+  infoBlock: {
+    backgroundColor: '#F3F4F6',
+    borderRadius: 14,
+    padding: 16,
     marginBottom: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.07,
+    shadowRadius: 2,
+  },
+  medicineName: {
+    fontSize: 19,
+    fontWeight: '700',
+    color: '#1F2937',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  dose: {
+    fontSize: 16,
+    color: '#2563EB',
+    fontWeight: '500',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: 15,
+    color: '#374151',
+    marginBottom: 2,
+    textAlign: 'center',
+  },
+  instructions: {
+    fontSize: 15,
+    color: '#059669',
+    marginTop: 2,
     textAlign: 'center',
   },
   statusButtons: {

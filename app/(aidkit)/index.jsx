@@ -1,16 +1,23 @@
 import { StyleSheet, View, ScrollView, TouchableOpacity, Text } from 'react-native';
-import React, { useState } from 'react';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { useRouter, useNavigation } from 'expo-router';
 import { useMedicines } from '../../contexts/MedicinesContext';
 import MedicineCard from '../../components/MedicineCard';
 import MedicineModal from '../../components/MedicineModal';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocale } from '../../contexts/LocaleContext';
 
 const AidKit = () => {
   const router = useRouter();
   const { medicines, deleteMedicine } = useMedicines();
   const [selectedMedicine, setSelectedMedicine] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const { t } = useLocale();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({ title: t.tabs.aidkit });
+  }, [navigation, t]);
 
   const handleMedicinePress = (medicine) => {
     setSelectedMedicine(medicine);

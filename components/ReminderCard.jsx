@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import StatusChangeModal from './StatusChangeModal';
 
-const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
+const ReminderCard = ({ name, dose, time, status, onToggleStatus, description, instructions }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [fadeAnim] = useState(new Animated.Value(1));
 
@@ -55,6 +55,12 @@ const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
         <View style={styles.textContainer}>
           <Text style={styles.name}>{name}</Text>
           <Text style={styles.dose}>{dose}</Text>
+          {description && (
+            <Text style={styles.description}>{description}</Text>
+          )}
+          {instructions && (
+            <Text style={styles.instructions}>{instructions}</Text>
+          )}
         </View>
 
         <View style={styles.rightContainer}>
@@ -72,6 +78,9 @@ const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
         onConfirm={handleConfirm}
         currentStatus={status}
         medicineName={name}
+        description={description}
+        instructions={instructions}
+        dose={dose}
       />
     </>
   );
@@ -103,6 +112,18 @@ const styles = StyleSheet.create({
   dose: {
     fontSize: 14,
     color: '#6B7280',
+    marginBottom: 2,
+  },
+  description: {
+    fontSize: 13,
+    color: '#374151',
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  instructions: {
+    fontSize: 13,
+    color: '#2563EB',
+    marginTop: 2,
   },
   rightContainer: {
     alignItems: 'flex-end',
