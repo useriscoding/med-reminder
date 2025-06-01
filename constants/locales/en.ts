@@ -10,6 +10,7 @@ export default {
     profile: 'Profile',
     settings:'Settings',
     security:'Security',
+    addMedicine: 'Add medicine',
   },
   settings: {
     title: 'Settings',

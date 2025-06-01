@@ -1,7 +1,9 @@
 import { View, TextInput, TouchableOpacity, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
+import { useLocale } from '../../../contexts/LocaleContext';
+import { useNavigation } from 'expo-router';
 
 const commonMedicines = [
   'Парацетамол',
@@ -27,6 +29,12 @@ export default function AddMedicineStep1() {
   const [unit, setUnit] = useState('таблетки');
   const [suggestions, setSuggestions] = useState([]);
   const router = useRouter();
+  const { t } = useLocale();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({ title: t.tabs.addMedicine });
+  }, [navigation, t]);
 
   const handleNameChange = (text) => {
     setName(text);

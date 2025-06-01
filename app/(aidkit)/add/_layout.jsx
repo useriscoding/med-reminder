@@ -2,6 +2,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { Stack, useSegments } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useHeaderHeight } from '@react-navigation/elements';
 
 const steps = [
   { id: 'index', title: 'Информация', icon: 'information-circle' },
@@ -13,6 +14,7 @@ const steps = [
 export default function AddMedicineLayout() {
   const segments = useSegments();
   const currentPath = segments[segments.length - 1];
+  const headerHeight = useHeaderHeight();
   
   const getStepStatus = (stepId) => {
     const currentIndex = steps.findIndex(step => step.id === currentPath);
@@ -25,7 +27,7 @@ export default function AddMedicineLayout() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: 45 }]}>
       <View style={styles.progressContainer}>
         {steps.map((step, index) => {
           const status = getStepStatus(step.id);

@@ -9,7 +9,8 @@ export default {
     aidkit: 'Аптечка',
     profile: 'Профиль',
     settings:'Настройки',
-    security:'Безопасность'
+    security:'Безопасность',
+    addMedicine: 'Добавить лекарство',
   },
   settings: {
     title: 'Настройки',
