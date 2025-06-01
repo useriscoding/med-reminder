@@ -1,13 +1,31 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import '../i18n';
 import { LocaleProvider } from '../contexts/LocaleContext';
 import { useLocale } from '../contexts/LocaleContext';
 import { MedicinesProvider } from '../contexts/MedicinesContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Layout() {
   const { t } = useLocale();
+  const [loading, setLoading] = useState(true);
+  const [hasToken, setHasToken] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const token = await AsyncStorage.getItem('token');
+      console.log('TOKEN:', token);
+      setHasToken(!!token);
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) return null;
+  if (!hasToken) {
+    const RegisterScreen = require('./register.jsx').default;
+    return <RegisterScreen />;
+  }
 
   return (
     <LocaleProvider>
