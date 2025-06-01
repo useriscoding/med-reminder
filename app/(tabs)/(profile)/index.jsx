@@ -1,11 +1,17 @@
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'expo-router'
-import { useLocale } from '../../contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
+import { useNavigation } from 'expo-router';
 
 const Profile = () => {
   const { t } = useLocale();
+  const navigation = useNavigation();
   
+  useEffect(() => {
+    navigation.setOptions({ title: t.tabs.profile });
+  }, [navigation, t]);
+
   // Данные пользователя (можно заменить на реальные данные из состояния)
   const user = {
     name: "Иван Иванов",
@@ -63,7 +69,6 @@ export default Profile
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8fafc',
     padding: 20,
   },
   userInfo: {
@@ -97,7 +102,8 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#e2e8f0',
+    backgroundColor: '#000000',
+    opacity: 0.25,
     marginVertical: 20,
     width: '80%',
     alignSelf: 'center',
