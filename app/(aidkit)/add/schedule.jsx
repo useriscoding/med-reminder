@@ -230,11 +230,15 @@ const styles = StyleSheet.create({
     padding: 12,
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    justifyContent: 'center',
+    minHeight: 48,
   },
   timeText: {
-    marginLeft: 8,
+    flex: 1,
+    textAlign: 'center',
     fontSize: 16,
     color: '#1F2937',
+    marginLeft: -24,
   },
   amountSection: {
     marginBottom: 8,
@@ -261,8 +265,9 @@ const styles = StyleSheet.create({
   },
   removeButton: {
     position: 'absolute',
-    top: 16,
-    right: 16,
+    top: -3,
+    right: 8,
+    padding: 12,
   },
   addButton: {
     flexDirection: 'row',
