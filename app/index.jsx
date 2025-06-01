@@ -14,7 +14,7 @@ const Home = () => {
     isTimePassedForReminder 
   } = useMedicines();
 
-  const toggleStatus = (id) => {
+  const toggleStatus = (id, newStatus) => {
     const reminder = todayReminders.find(r => r.id === id);
     if (!reminder) return;
 
@@ -26,38 +26,17 @@ const Home = () => {
     // Получаем количество из дозы (например, из "2 таблетки" получаем 2)
     const amount = parseInt(reminder.dose.split(' ')[0]);
 
-    // Определяем следующий статус в зависимости от текущего и времени
-    const timePassed = isTimePassedForReminder(reminder.time);
-    let newStatus;
-
-    if (reminder.status === 'done') {
-      newStatus = 'missed';
-    } else if (reminder.status === 'missed') {
-      if (medicine.stock < amount) {
-        Alert.alert(
-          'Недостаточно лекарства',
-          'В аптечке недостаточно единиц лекарства для приема. Пожалуйста, пополните запас.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
-      newStatus = 'done';
-    } else if (!timePassed) {
-      // Если время не прошло и статус upcoming, можем отметить как принятое
-      if (medicine.stock < amount) {
-        Alert.alert(
-          'Недостаточно лекарства',
-          'В аптечке недостаточно единиц лекарства для приема. Пожалуйста, пополните запас.',
-          [{ text: 'OK' }]
-        );
-        return;
-      }
-      newStatus = 'done';
+    // Проверяем достаточно ли лекарства для отметки как принятое
+    if (newStatus === 'done' && medicine.stock < amount) {
+      Alert.alert(
+        'Недостаточно лекарства',
+        'В аптечке недостаточно единиц лекарства для приема. Пожалуйста, пополните запас.',
+        [{ text: 'OK' }]
+      );
+      return;
     }
 
-    if (newStatus) {
-      updateReminderStatus(id, newStatus, amount, medicineId);
-    }
+    updateReminderStatus(id, newStatus, amount, medicineId);
   };
 
   const renderEmptyList = () => (
@@ -78,8 +57,8 @@ const Home = () => {
   );
 
   return (
-    <View style={{ flex: 1, padding: 16 }}>
-      <ScrollView>
+    <View style={styles.container}>
+      <ScrollView style={styles.scrollView}>
         {todayReminders.length > 0 ? (
           todayReminders.map((reminder) => (
             <ReminderCard
@@ -88,7 +67,7 @@ const Home = () => {
               dose={reminder.dose}
               time={reminder.time}
               status={reminder.status}
-              onToggleStatus={() => toggleStatus(reminder.id)}
+              onToggleStatus={(newStatus) => toggleStatus(reminder.id, newStatus)}
             />
           ))
         ) : renderEmptyList()}
@@ -100,15 +79,17 @@ const Home = () => {
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
     </View>
-  )
-}
-
-export default Home
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
+    backgroundColor: '#F9FAFB',
+    padding: 16,
+  },
+  scrollView: {
+    flex: 1,
   },
   emptyContainer: {
     flex: 1,
@@ -165,4 +146,6 @@ const styles = StyleSheet.create({
     lineHeight: 30,
     marginTop: -2,
   },
-})
+});
+
+export default Home;

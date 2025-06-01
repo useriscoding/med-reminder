@@ -13,6 +13,7 @@ export function useMedicines() {
 export function MedicinesProvider({ children }) {
   const [medicines, setMedicines] = useState([]);
   const [todayReminders, setTodayReminders] = useState([]);
+  const [reminderStatuses, setReminderStatuses] = useState({});
   // Храним информацию о том, для каких напоминаний уже был изменен остаток
   const [stockChanges, setStockChanges] = useState(new Set());
 
@@ -53,8 +54,7 @@ export function MedicinesProvider({ children }) {
     // Добавляем лекарство в список
     setMedicines(prev => [...prev, newMedicine]);
 
-    // Обновляем напоминания на сегодня
-    updateTodayReminders([...medicines, newMedicine]);
+    // updateTodayReminders([...medicines, newMedicine]); // Удалено, чтобы избежать багов с состоянием
   };
 
   const updateTodayReminders = (medicinesList) => {
@@ -72,9 +72,14 @@ export function MedicinesProvider({ children }) {
         if (isTimePassedForReminder(scheduleItem.time)) {
           status = 'missed';
         }
+        // Если статус есть в reminderStatuses — используем его
+        const reminderId = `${medicine.id}-${scheduleItem.time}`;
+        if (reminderStatuses[reminderId]) {
+          status = reminderStatuses[reminderId];
+        }
 
         reminders.push({
-          id: `${medicine.id}-${scheduleItem.time}`,
+          id: reminderId,
           name: medicine.name,
           dose: `${scheduleItem.amount} ${medicine.unit}`,
           time: scheduleItem.time,
@@ -94,13 +99,10 @@ export function MedicinesProvider({ children }) {
   };
 
   const updateReminderStatus = (reminderId, newStatus, amount = 0, medicineId = null) => {
-    const reminder = todayReminders.find(r => r.id === reminderId);
-    if (!reminder) return;
+    if (!reminderId || !newStatus) return;
 
-    // Проверяем, можно ли установить статус upcoming для прошедшего времени
-    if (newStatus === 'upcoming' && isTimePassedForReminder(reminder.time)) {
-      return;
-    }
+    // Обновляем статусы напоминаний
+    setReminderStatuses(prev => ({ ...prev, [reminderId]: newStatus }));
 
     // Если меняем на done и остаток еще не менялся для этого напоминания
     if (newStatus === 'done' && !stockChanges.has(reminderId) && medicineId) {
@@ -110,14 +112,6 @@ export function MedicinesProvider({ children }) {
         setStockChanges(prev => new Set([...prev, reminderId]));
       }
     }
-
-    setTodayReminders(prev =>
-      prev.map(reminder =>
-        reminder.id === reminderId
-          ? { ...reminder, status: newStatus }
-          : reminder
-      )
-    );
   };
 
   const updateMedicineStock = (medicineId, newStock) => {
@@ -187,10 +181,10 @@ export function MedicinesProvider({ children }) {
     return () => clearTimeout(timerId);
   }, []);
 
-  // Обновляем напоминания при изменении medicines
+  // Обновляем todayReminders при изменении medicines или reminderStatuses
   useEffect(() => {
     updateTodayReminders(medicines);
-  }, [medicines]);
+  }, [medicines, reminderStatuses]);
 
   return (
     <MedicinesContext.Provider

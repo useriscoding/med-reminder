@@ -1,21 +1,47 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import StatusChangeModal from './StatusChangeModal';
 
 const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(1));
+
+  const handleStatusPress = () => {
+    setModalVisible(true);
+  };
+
+  const handleConfirm = (newStatus) => {
+    // Анимация при изменении статуса
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0.5,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    onToggleStatus(newStatus);
+  };
+
   const backgroundColor = {
-    done: '#F2F2F2',
-    missed: '#FFE5E5',
+    done: '#ECFDF5',
+    missed: '#FEF2F2',
     upcoming: '#FFFFFF',
   }[status];
 
   const circleStyle = {
     done: {
-      borderColor: '#A0A0A0',
-      backgroundColor: '#A0A0A0',
+      borderColor: '#059669',
+      backgroundColor: '#059669',
     },
     missed: {
-      borderColor: '#FF5C5C',
-      backgroundColor: '#FF5C5C',
+      borderColor: '#DC2626',
+      backgroundColor: '#DC2626',
     },
     upcoming: {
       borderColor: '#7E57C2',
@@ -24,20 +50,30 @@ const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
   }[status];
 
   return (
-    <View style={[styles.card, { backgroundColor }]}>
-      <View style={styles.textContainer}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.dose}>{dose}</Text>
-      </View>
+    <>
+      <Animated.View style={[styles.card, { backgroundColor, opacity: fadeAnim }]}>
+        <View style={styles.textContainer}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.dose}>{dose}</Text>
+        </View>
 
-      <View style={styles.rightContainer}>
-        <Text style={[styles.time, { color: circleStyle.borderColor }]}>{time}</Text>
-        <TouchableOpacity
-          style={[styles.circle, circleStyle]}
-          onPress={onToggleStatus}
-        />
-      </View>
-    </View>
+        <View style={styles.rightContainer}>
+          <Text style={[styles.time, { color: circleStyle.borderColor }]}>{time}</Text>
+          <TouchableOpacity
+            style={[styles.circle, circleStyle]}
+            onPress={handleStatusPress}
+          />
+        </View>
+      </Animated.View>
+
+      <StatusChangeModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onConfirm={handleConfirm}
+        currentStatus={status}
+        medicineName={name}
+      />
+    </>
   );
 };
 
