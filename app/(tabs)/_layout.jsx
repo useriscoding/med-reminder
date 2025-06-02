@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import '../../i18n';
-import { LocaleProvider } from '../../contexts/LocaleContext';
-import { useLocale } from '../../contexts/LocaleContext';
-import { MedicinesProvider } from '../../contexts/MedicinesContext';
+import { LocaleProvider } from '@contexts/LocaleContext';
+import { useLocale } from '@contexts/LocaleContext';
+import { MedicinesProvider } from '@contexts/MedicinesContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
