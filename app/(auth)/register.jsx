@@ -45,6 +45,7 @@ export default function RegisterScreen() {
       }
       await AsyncStorage.setItem('token', authData.token);
       await AsyncStorage.setItem('ip', IP);
+      await AsyncStorage.setItem('password', password);
       // Сохраняем только email пользователя
       await AsyncStorage.setItem('userProfile', JSON.stringify({ email }));
       setLoading(false);

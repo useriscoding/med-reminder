@@ -90,6 +90,23 @@ const Profile = () => {
             <Text style={styles.linkText}>{t.profile.about}</Text>
           </TouchableOpacity>
         </Link>
+
+        {/* Временная кнопка для очистки данных */}
+        <TouchableOpacity 
+          style={[styles.linkButton, { backgroundColor: '#EF4444' }]}
+          onPress={async () => {
+            try {
+              await AsyncStorage.multiRemove(['token', 'password', 'userProfile', 'ip']);
+              alert('Данные очищены. Приложение перезагрузится.');
+              // Перезагружаем приложение
+              window.location.reload();
+            } catch (error) {
+              alert('Ошибка при очистке данных');
+            }
+          }}
+        >
+          <Text style={styles.linkText}>Очистить данные (DEBUG)</Text>
+        </TouchableOpacity>
       </View>
 
       <Modal
