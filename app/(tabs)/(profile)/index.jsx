@@ -18,14 +18,14 @@ const Profile = () => {
     age: '',
     height: '',
     weight: '',
-    photo: 'https://randomuser.me/api/portraits/men/1.jpg',
+    photo: require('../../../assets/account_default.png'),
   });
   const [editVisible, setEditVisible] = useState(false);
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
   const [height, setHeight] = useState('');
   const [weight, setWeight] = useState('');
-  const [photo, setPhoto] = useState('https://randomuser.me/api/portraits/men/1.jpg');
+  const [photo, setPhoto] = useState(require('../../../assets/account_default.png'));
 
   useEffect(() => {
     navigation.setOptions({ title: t.tabs.profile });
@@ -38,9 +38,9 @@ const Profile = () => {
         setAge(data.age || '');
         setHeight(data.height || '');
         setWeight(data.weight || '');
-        setPhoto(data.photo || 'https://randomuser.me/api/portraits/men/1.jpg');
+        setPhoto(data.photo || require('../../../assets/account_default.png'));
       } else {
-        setPhoto('https://randomuser.me/api/portraits/men/1.jpg');
+        setPhoto(require('../../../assets/account_default.png'));
       }
     })();
   }, [navigation, t]);
@@ -50,7 +50,7 @@ const Profile = () => {
       {/* Информация о пользователе */}
       <View style={styles.userInfo}>
         <Image 
-          source={{ uri: photo }} 
+          source={typeof photo === 'string' ? { uri: photo } : photo} 
           style={styles.avatar}
         />
         <Text style={styles.userName}>{user.name}</Text>
@@ -203,7 +203,7 @@ const Profile = () => {
                     const data = JSON.parse(profile);
                     email = data.email || '';
                   }
-                  await AsyncStorage.setItem('userProfile', JSON.stringify({ email, gender: gender === '' ? '' : Number(gender), age, height, weight, photo }));
+                  await AsyncStorage.setItem('userProfile', JSON.stringify({ email, gender: gender === '' ? '' : Number(gender), age, height, weight, photo: typeof photo === 'string' ? photo : null }));
                   setUser(prev => ({ ...prev, gender, age, height, weight, photo }));
                   setEditVisible(false);
                 }}>
@@ -236,6 +236,9 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     marginBottom: 20,
+    backgroundColor: '#F3F4F6',
+    borderWidth: 3,
+    borderColor: '#3B82F6',
   },
   userName: {
     fontSize: 24,

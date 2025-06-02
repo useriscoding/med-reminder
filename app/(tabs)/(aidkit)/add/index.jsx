@@ -7,14 +7,110 @@ import { useNavigation } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const commonMedicines = [
+  'Панадол',
+  'Нурофен', 
+  'Анальгин',
+  'Вольтарен',
+  'Кеторолак',
+  'Трамал',
+  'Морфин',
+  'Напроксен',
+  'Мовалис',
+  'Целебрекс',
+  'Аркоксиа',
+  'Амоксиклав',
+  'Сумамед',
+  'Ципробай',
+  'Роцефин',
+  'Юнидокс Солютаб',
+  'Трихопол',
+  'Клацид',
+  'Левофлоксацин',
+  'Супракс',
+  'Тамифлю',
+  'Зовиракс',
+  'Валацикловир',
+  'Веклури',
+  'Виреад',
+  'Эпивир',
+  'Дифлюкан',
+  'Канестен',
+  'Низорал',
+  'Нистатин',
+  'Кларитин',
+  'Зиртек',
+  'Эриус',
+  'Ксизал',
+  'Хлоропирамин',
+  'Лазолван',
+  'АЦЦ',
+  'Бромгексин',
+  'Гликодин',
+  'Вазотек',
+  'Престариум',
+  'Пренесса',
+  'Норваск',
+  'Конкор',
+  'Эгилок',
+  'Лозартан',
+  'Диован',
+  'Плавикс',
+  'Липримар',
+  'Крестор',
+  'Дигоксин',
+  'Лазикс',
+  'Гидрохлортиазид',
+  'Верошпирон',
+  'Варфарин',
+  'Ксарелто',
+  'Эликвис',
+  'Гепарин',
+  'Аспирин',
+  'Глюкофаж',
+  'Диабетон',
+  'Жанет',
+  'Фариксга',
+  'Лантус',
+  'Новорапид',
+  'Эутирокс',
+  'Преднизолон',
+  'Дексаметазон',
+  'Гидрокортизон',
+  'Эстриол',
+  'Утрожестан',
+  'Валиум',
+  'Атевис',
+  'Ксанакс',
+  'Золофт',
+  'Прозак',
+  'Ципралекс',
+  'Амитриптилин',
+  'Сероквель',
+  'Зипрекса',
+  'Рисполепт',
+  'Депакин',
+  'Тегретол',
+  'Кеппра',
+  'Ламиктал',
+  'Лидокаин',
+  'Маркаин',
+  'Но-шпа',
+  'Папаверин',
+  'Омепразол',
+  'Контролок',
+  'Мотилиум',
+  'Имодиум',
+  'Месалазин',
+  'Ондансетрон',
+  'Церукал',
+  'Витамин B12',
+  'Витамин D3',
+  'Метотрексат',
+  'Тритцея',
   'Парацетамол',
   'Ибупрофен',
-  'Аспирин',
-  'Нурофен',
-  'Анальгин',
-  'Но-шпа',
   'Супрастин',
-  'Цитрамон',
+  'Цитрамон'
 ];
 
 const unitOptions = [
@@ -56,7 +152,16 @@ export default function AddMedicineStep1() {
     if (text.length > 0) {
       const filtered = commonMedicines.filter(med => 
         med.toLowerCase().includes(text.toLowerCase())
-      );
+      )
+      .slice(0, 8) // Ограничиваем до 8 результатов
+      .sort((a, b) => {
+        // Сначала показываем точные совпадения в начале
+        const aStarts = a.toLowerCase().startsWith(text.toLowerCase());
+        const bStarts = b.toLowerCase().startsWith(text.toLowerCase());
+        if (aStarts && !bStarts) return -1;
+        if (!aStarts && bStarts) return 1;
+        return a.localeCompare(b);
+      });
       setSuggestions(filtered);
     } else {
       setSuggestions([]);
@@ -86,7 +191,7 @@ export default function AddMedicineStep1() {
         />
         
         {suggestions.length > 0 && (
-          <View style={styles.suggestions}>
+          <ScrollView style={styles.suggestions} nestedScrollEnabled={true}>
             {suggestions.map((suggestion) => (
               <TouchableOpacity 
                 key={suggestion} 
@@ -96,10 +201,10 @@ export default function AddMedicineStep1() {
                   setSuggestions([]);
                 }}
               >
-                <Text>{suggestion}</Text>
+                <Text style={styles.suggestionText}>{suggestion}</Text>
               </TouchableOpacity>
             ))}
-          </View>
+          </ScrollView>
         )}
 
         <Text style={styles.label}>Описание</Text>
@@ -191,11 +296,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    maxHeight: 200,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
   },
   suggestionItem: {
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
+  },
+  suggestionText: {
+    color: '#3B82F6',
+    fontSize: 16,
   },
   unitContainer: {
     flexDirection: 'row',
