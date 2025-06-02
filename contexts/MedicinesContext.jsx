@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const MedicinesContext = createContext();
 
@@ -20,6 +21,54 @@ export function MedicinesProvider({ children }) {
   const [sideEffectsData, setSideEffectsData] = useState([]);
   // Дата последней фиксации остатков (для контроля ежедневного сброса)
   const [lastResetDate, setLastResetDate] = useState(new Date().toDateString());
+
+  // Функция для сохранения истории в AsyncStorage
+  const saveHistoryToStorage = async (date, historyData) => {
+    try {
+      const stored = await AsyncStorage.getItem('medicineHistory');
+      const history = stored ? JSON.parse(stored) : {};
+      
+      history[date] = historyData;
+      
+      // Ограничиваем историю последними 60 днями
+      const dates = Object.keys(history).sort((a, b) => new Date(b) - new Date(a));
+      if (dates.length > 60) {
+        const toDelete = dates.slice(60);
+        toDelete.forEach(date => delete history[date]);
+      }
+      
+      await AsyncStorage.setItem('medicineHistory', JSON.stringify(history));
+    } catch (error) {
+      console.error('Ошибка сохранения истории:', error);
+    }
+  };
+
+  // Функция для создания записи истории из текущих данных
+  const generateHistoryEntry = () => {
+    const historyEntries = [];
+    
+    medicines.forEach(medicine => {
+      medicine.schedule.forEach(scheduleItem => {
+        const reminderId = `${medicine.id}-${scheduleItem.time}`;
+        const status = reminderStatuses[reminderId] || 'upcoming';
+        
+        historyEntries.push({
+          id: reminderId,
+          medicineName: medicine.name,
+          time: scheduleItem.time,
+          dose: `${scheduleItem.amount} ${medicine.unit}`,
+          status,
+          unit: medicine.unit
+        });
+      });
+    });
+
+    return historyEntries.sort((a, b) => {
+      const timeA = new Date(`1970/01/01 ${a.time}`);
+      const timeB = new Date(`1970/01/01 ${b.time}`);
+      return timeA - timeB;
+    });
+  };
 
   // Функция для проверки, прошло ли время приема
   const isTimePassedForReminder = (reminderTime) => {
@@ -114,7 +163,18 @@ export function MedicinesProvider({ children }) {
     const currentStatus = reminderStatuses[reminderId];
 
     // Обновляем статусы напоминаний
-    setReminderStatuses(prev => ({ ...prev, [reminderId]: newStatus }));
+    setReminderStatuses(prev => {
+      const newStatuses = { ...prev, [reminderId]: newStatus };
+      
+      // Сохраняем историю при каждом изменении статуса
+      const today = new Date().toDateString();
+      setTimeout(() => {
+        const historyEntry = generateHistoryEntry();
+        saveHistoryToStorage(today, historyEntry);
+      }, 100);
+      
+      return newStatuses;
+    });
 
     // Если меняем на done и остаток еще не менялся для этого напоминания
     if (newStatus === 'done' && !stockChanges.has(reminderId) && medicineId) {
@@ -244,6 +304,15 @@ export function MedicinesProvider({ children }) {
 
     const performDailyReset = () => {
       const today = new Date().toDateString();
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayString = yesterday.toDateString();
+      
+      // Сохраняем историю вчерашнего дня перед сбросом
+      const yesterdayHistory = generateHistoryEntry();
+      if (yesterdayHistory.length > 0) {
+        saveHistoryToStorage(yesterdayString, yesterdayHistory);
+      }
       
       // Сбрасываем все статусы напоминаний на upcoming
       setReminderStatuses(prev => {
@@ -256,6 +325,9 @@ export function MedicinesProvider({ children }) {
       
       // Очищаем информацию об изменениях остатка (фиксируем текущее количество)
       setStockChanges(new Set());
+      
+      // Очищаем данные побочных эффектов (они переносятся в новый день)
+      setSideEffectsData([]);
       
       // Обновляем дату последнего сброса
       setLastResetDate(today);
@@ -277,6 +349,7 @@ export function MedicinesProvider({ children }) {
       value={{
         medicines,
         todayReminders,
+        reminderStatuses,
         sideEffectsData,
         addMedicine,
         updateReminderStatus,
