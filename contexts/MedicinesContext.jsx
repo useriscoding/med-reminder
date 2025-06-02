@@ -21,6 +21,8 @@ export function MedicinesProvider({ children }) {
   const [sideEffectsData, setSideEffectsData] = useState([]);
   // Дата последней фиксации остатков (для контроля ежедневного сброса)
   const [lastResetDate, setLastResetDate] = useState(new Date().toDateString());
+  // Храним время добавления лекарств для корректной обработки статусов
+  const [medicineAddTimes, setMedicineAddTimes] = useState({});
 
   // Функция для сохранения истории в AsyncStorage
   const saveHistoryToStorage = async (date, historyData) => {
@@ -40,6 +42,33 @@ export function MedicinesProvider({ children }) {
       await AsyncStorage.setItem('medicineHistory', JSON.stringify(history));
     } catch (error) {
       console.error('Ошибка сохранения истории:', error);
+    }
+  };
+
+  // Функция для сохранения времени добавления лекарств в AsyncStorage
+  const saveMedicineAddTimesToStorage = async (addTimes) => {
+    try {
+      await AsyncStorage.setItem('medicineAddTimes', JSON.stringify(addTimes));
+    } catch (error) {
+      console.error('Ошибка сохранения времени добавления лекарств:', error);
+    }
+  };
+
+  // Функция для загрузки времени добавления лекарств из AsyncStorage
+  const loadMedicineAddTimesFromStorage = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('medicineAddTimes');
+      if (stored) {
+        const parsedTimes = JSON.parse(stored);
+        // Преобразуем строки обратно в объекты Date
+        const convertedTimes = {};
+        Object.keys(parsedTimes).forEach(medicineId => {
+          convertedTimes[medicineId] = new Date(parsedTimes[medicineId]);
+        });
+        setMedicineAddTimes(convertedTimes);
+      }
+    } catch (error) {
+      console.error('Ошибка загрузки времени добавления лекарств:', error);
     }
   };
 
@@ -104,8 +133,21 @@ export function MedicinesProvider({ children }) {
       remindThreshold: parseInt(remindThreshold),
     };
 
+    const addTime = new Date();
+
     // Добавляем лекарство в список
     setMedicines(prev => [...prev, newMedicine]);
+
+    // Сохраняем время добавления лекарства
+    setMedicineAddTimes(prev => {
+      const newTimes = {
+        ...prev,
+        [newMedicine.id]: addTime
+      };
+      // Сохраняем в AsyncStorage
+      saveMedicineAddTimesToStorage(newTimes);
+      return newTimes;
+    });
 
     // updateTodayReminders([...medicines, newMedicine]); // Удалено, чтобы избежать багов с состоянием
   };
@@ -129,9 +171,25 @@ export function MedicinesProvider({ children }) {
         if (reminderStatuses[reminderId]) {
           status = reminderStatuses[reminderId];
         } 
-        // Если статуса нет и время прошло - ставим missed
+        // Если статуса нет и время прошло - проверяем, не новое ли это лекарство
         else if (isTimePassedForReminder(scheduleItem.time)) {
-          status = 'missed';
+          const medicineAddTime = medicineAddTimes[medicine.id];
+          
+          // Если лекарство было добавлено сегодня и после времени приема, 
+          // то оно остается upcoming, а не missed
+          if (medicineAddTime) {
+            const isAddedToday = medicineAddTime.toDateString() === today.toDateString();
+            const wasAddedAfterReminderTime = medicineAddTime > reminderTime;
+            
+            if (isAddedToday && wasAddedAfterReminderTime) {
+              status = 'upcoming';
+            } else {
+              status = 'missed';
+            }
+          } else {
+            // Если времени добавления нет (старые лекарства), то missed
+            status = 'missed';
+          }
         }
 
         reminders.push({
@@ -275,6 +333,15 @@ export function MedicinesProvider({ children }) {
       }
       return newChanges;
     });
+
+    // Удаляем время добавления лекарства
+    setMedicineAddTimes(prev => {
+      const newTimes = { ...prev };
+      delete newTimes[medicineId];
+      // Сохраняем в AsyncStorage
+      saveMedicineAddTimesToStorage(newTimes);
+      return newTimes;
+    });
   };
 
   // Ежедневное обновление в полночь
@@ -343,6 +410,11 @@ export function MedicinesProvider({ children }) {
   useEffect(() => {
     updateTodayReminders(medicines);
   }, [medicines, reminderStatuses]);
+
+  // Загружаем данные при инициализации
+  useEffect(() => {
+    loadMedicineAddTimesFromStorage();
+  }, []);
 
   return (
     <MedicinesContext.Provider

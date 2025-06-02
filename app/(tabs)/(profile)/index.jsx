@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Modal } from 'react-native'
+import { StyleSheet, Text, View, Image, TouchableOpacity, TextInput, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView, Platform, Modal, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Link, useRouter } from 'expo-router'
 import { useLocale } from '@contexts/LocaleContext';
@@ -94,18 +94,46 @@ const Profile = () => {
         {/* Временная кнопка для очистки данных */}
         <TouchableOpacity 
           style={[styles.linkButton, { backgroundColor: '#EF4444' }]}
-          onPress={async () => {
-            try {
-              await AsyncStorage.multiRemove(['token', 'password', 'userProfile', 'ip']);
-              alert('Данные очищены. Приложение перезагрузится.');
-              // Перезагружаем приложение
-              window.location.reload();
-            } catch (error) {
-              alert('Ошибка при очистке данных');
-            }
+          onPress={() => {
+            Alert.alert(
+              'Удаление аккаунта',
+              'Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить. Все ваши данные будут безвозвратно удалены.',
+              [
+                {
+                  text: 'Отмена',
+                  style: 'cancel'
+                },
+                {
+                  text: 'Удалить',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await AsyncStorage.multiRemove(['token', 'password', 'userProfile', 'ip', 'medicineHistory', 'medicineAddTimes']);
+                      Alert.alert(
+                        'Аккаунт удален',
+                        'Ваш аккаунт и все данные были успешно удалены. Приложение перезагрузится.',
+                        [
+                          {
+                            text: 'OK',
+                            onPress: () => {
+                              // Перезагружаем приложение
+                              if (typeof window !== 'undefined') {
+                                window.location.reload();
+                              }
+                            }
+                          }
+                        ]
+                      );
+                    } catch (error) {
+                      Alert.alert('Ошибка', 'Произошла ошибка при удалении аккаунта. Попробуйте еще раз.');
+                    }
+                  }
+                }
+              ]
+            );
           }}
         >
-          <Text style={styles.linkText}>Очистить данные (DEBUG)</Text>
+          <Text style={styles.linkText}>Удалить аккаунт</Text>
         </TouchableOpacity>
       </View>
 
@@ -262,7 +290,8 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#000000',
     opacity: 0.25,
-    marginVertical: 20,
+    marginTop: -10,
+    marginBottom: 20,
     width: '80%',
     alignSelf: 'center',
   },

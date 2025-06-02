@@ -1,13 +1,18 @@
 import { StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useLocale } from '@contexts/LocaleContext';
+import { useNavigation } from 'expo-router';
 
 const About = () => {
   const { t } = useLocale();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({ title: 'About us' });
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{t.profile.about}</Text>
       <Text style={styles.text}>
         {t.about.text}
       </Text>
@@ -25,13 +30,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#f8fafc',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 20,
-    color: '#0f172a',
-    textAlign: 'center',
   },
   text: {
     fontSize: 16,
