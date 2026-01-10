@@ -1,25 +1,27 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
-import '../i18n';
-import { LocaleProvider } from '../contexts/LocaleContext';
-import { useLocale } from '../contexts/LocaleContext';
+import React, { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Slot } from 'expo-router';
 
-export default function Layout() {
-  const { t } = useLocale();
+export default function RootLayout() {
+  const [loading, setLoading] = useState(true);
+  const [hasToken, setHasToken] = useState(false);
 
-  return (
-    <LocaleProvider>
-        <Tabs screenOptions={{
-          tabBarActiveTintColor: '#3B82F6',
-          tabBarInactiveTintColor: '#64748B'
-        }}>
-        
-        <Tabs.Screen name="index" options={{ title: t.tabs.today }} />
-        <Tabs.Screen name="statistics" options={{ title: 'statistics' }} />
-        <Tabs.Screen name="sideeffects" options={{ title: 'sideeffects' }} />
-        <Tabs.Screen name="(aidkit)" options={{ title: 'aidkKit', headerShown: false }} />
-        <Tabs.Screen name="(profile)" options={{ title: 'profile', headerShown: false }} />
-      </Tabs>
-    </LocaleProvider>
-  );
-}
+  useEffect(() => {
+    (async () => {
+      const token = await AsyncStorage.getItem('token');
+      setHasToken(!!token);
+      setLoading(false);
+    })();
+  }, []);
+
+  if (loading) return null;
+
+  // Если токена нет — показываем только регистрацию
+  if (!hasToken) {
+    const RegisterScreen = require('./(auth)/register.jsx').default;
+    return <RegisterScreen />;
+  }
+
+  // Если токен есть — показываем все табы приложения
+  return <Slot />;
+} 

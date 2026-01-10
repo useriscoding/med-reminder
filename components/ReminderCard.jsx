@@ -1,21 +1,47 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import StatusChangeModal from './StatusChangeModal';
 
-const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
+const ReminderCard = ({ name, dose, time, status, onToggleStatus, description, instructions }) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [fadeAnim] = useState(new Animated.Value(1));
+
+  const handleStatusPress = () => {
+    setModalVisible(true);
+  };
+
+  const handleConfirm = (newStatus) => {
+    // Анимация при изменении статуса
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0.5,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    onToggleStatus(newStatus);
+  };
+
   const backgroundColor = {
-    done: '#F2F2F2',
-    missed: '#FFE5E5',
+    done: '#ECFDF5',
+    missed: '#FEF2F2',
     upcoming: '#FFFFFF',
   }[status];
 
   const circleStyle = {
     done: {
-      borderColor: '#A0A0A0',
-      backgroundColor: '#A0A0A0',
+      borderColor: '#059669',
+      backgroundColor: '#059669',
     },
     missed: {
-      borderColor: '#FF5C5C',
-      backgroundColor: '#FF5C5C',
+      borderColor: '#DC2626',
+      backgroundColor: '#DC2626',
     },
     upcoming: {
       borderColor: '#7E57C2',
@@ -24,20 +50,39 @@ const ReminderCard = ({ name, dose, time, status, onToggleStatus }) => {
   }[status];
 
   return (
-    <View style={[styles.card, { backgroundColor }]}>
-      <View style={styles.textContainer}>
-        <Text style={styles.name}>{name}</Text>
-        <Text style={styles.dose}>{dose}</Text>
-      </View>
+    <>
+      <Animated.View style={[styles.card, { backgroundColor, opacity: fadeAnim }]}>
+        <View style={styles.textContainer}>
+          <Text style={styles.name}>{name}</Text>
+          <Text style={styles.dose}>{dose}</Text>
+          {description && (
+            <Text style={styles.description}>{description}</Text>
+          )}
+          {instructions && (
+            <Text style={styles.instructions}>{instructions}</Text>
+          )}
+        </View>
 
-      <View style={styles.rightContainer}>
-        <Text style={[styles.time, { color: circleStyle.borderColor }]}>{time}</Text>
-        <TouchableOpacity
-          style={[styles.circle, circleStyle]}
-          onPress={onToggleStatus}
-        />
-      </View>
-    </View>
+        <View style={styles.rightContainer}>
+          <Text style={[styles.time, { color: circleStyle.borderColor }]}>{time}</Text>
+          <TouchableOpacity
+            style={[styles.circle, circleStyle]}
+            onPress={handleStatusPress}
+          />
+        </View>
+      </Animated.View>
+
+      <StatusChangeModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onConfirm={handleConfirm}
+        currentStatus={status}
+        medicineName={name}
+        description={description}
+        instructions={instructions}
+        dose={dose}
+      />
+    </>
   );
 };
 
@@ -47,12 +92,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     padding: 16,
-    marginVertical: 6,
-    marginHorizontal: 16,
+    marginVertical: 8,
     borderRadius: 12,
+    elevation: 3,
     shadowColor: '#000',
-    shadowOpacity: 0.05,
     shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   textContainer: {
@@ -60,23 +105,36 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: 'bold',
+    color: '#1F2937',
+    marginBottom: 4,
   },
   dose: {
     fontSize: 14,
-    color: '#888',
-    marginTop: 4,
+    color: '#6B7280',
+    marginBottom: 2,
+  },
+  description: {
+    fontSize: 13,
+    color: '#374151',
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  instructions: {
+    fontSize: 13,
+    color: '#2563EB',
+    marginTop: 2,
   },
   rightContainer: {
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    height: 40,
+    height: 48,
   },
   time: {
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 8,
+    color: '#1F2937',
   },
   circle: {
     width: 20,
